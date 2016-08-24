@@ -1,0 +1,4 @@
+*.o
+*.exe
+client
+server
