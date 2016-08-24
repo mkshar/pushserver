@@ -178,11 +178,7 @@ inline void queue_alarms( time_t now, shedule_t& shedule, signaled_alarms_t& ala
 		if( start_at <= now )
 		{
        			alarm_ptr alarm = head->second;
-
-			//alarms.push_back( alarm );
 			alarms[ alarm->user_id ].insert( alarm );
-
-
 			shedule.erase( head );
 
 			do
