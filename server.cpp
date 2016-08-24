@@ -57,18 +57,8 @@ int main( int argc, char** argv )
 		fprintf( stderr, "Usage: %s <port> <reconnect-interval>\n", argv[0] );
 		exit( 1 );
 	}
-
-	std::ifstream in( "alarms.conf" );
-	for(;;)
-	{
-		alarm_t* alarm = read( in );
-		if( alarm != nullptr )
-		{
-			alarms.push_back( alarm_ptr( alarm ) );
-		}
-		else
-			break;
-	}
+	
+	load_alarms( alarms, "alarms.conf" );
 	make_shedule( shedule, alarms );
 
 	std::cout << "SHEDULE:" << std::endl;
@@ -110,10 +100,8 @@ int main( int argc, char** argv )
 		}
 
 		struct sockaddr_in serveraddr;
-		struct sockaddr_in clientaddr;
-		
-                memset( &serveraddr, 0x00, sizeof( serveraddr ) );
-                serveraddr.sin_family = AF_INET;
+		memset( &serveraddr, 0x00, sizeof( serveraddr ) );
+		serveraddr.sin_family = AF_INET;
 		serveraddr.sin_addr.s_addr = htons( INADDR_ANY );
 		serveraddr.sin_port = htons( port );
  
@@ -134,16 +122,17 @@ int main( int argc, char** argv )
 		}
 
 		fd_set active_fd_set;
-		fd_set read_fd_set;
-
+		
 		FD_ZERO( &active_fd_set );
 		FD_SET( socket_fd, &active_fd_set );
 
 		for( int n = 0;; ++n )
 		{
-			internal_error = 0;
-			read_fd_set = active_fd_set;
 			printf( "Waiting (%i)...\n", n );
+
+			internal_error = 0;
+
+			fd_set read_fd_set = active_fd_set;
 			timeout.tv_sec  = reconnect_interval;
 			timeout.tv_usec = 0;
 
@@ -161,7 +150,8 @@ int main( int argc, char** argv )
 					if( i == socket_fd ) /* incoming connection */
 					{
 						int new_socket_fd;
-						socklen_t size = sizeof( clientaddr );
+						struct sockaddr_in clientaddr;
+						socklen_t size = sizeof( clientaddr );						
 						new_socket_fd = accept( socket_fd, (struct sockaddr*) &clientaddr, &size );
 						if( new_socket_fd < 0 )
                   				{
@@ -184,7 +174,6 @@ int main( int argc, char** argv )
 						int bytes_read = read( i, buffer, sizeof( buffer ) );
 						if( bytes_read > 0 )
 						{
-							//printf( "Message from client: %s\n", buffer );
 							if( ( strncmp( buffer, "HELLO\n", 6 ) == 0 ) && ( strlen( buffer ) > 6 ) )
 							{
 								char* id = buffer + 6;
@@ -226,8 +215,8 @@ int main( int argc, char** argv )
 			{
 				client_info_t& client = i.second;
 				
-				if( client.fd == -1 )
-					continue;
+//				if( client.fd == -1 )
+//					continue;
 				if( client.id.empty() ) // client not identified
 					continue;
 				auto alarms = signaled.find( client.id );

@@ -100,7 +100,8 @@ int main( int argc, char** argv )
 				timeout.tv_sec  = reconnect_interval;
 				timeout.tv_usec = 0;
 
-				if( select( FD_SETSIZE, &read_fd_set, NULL, NULL, &timeout ) == -1 )
+				//if( select( FD_SETSIZE, &read_fd_set, NULL, NULL, &timeout ) == -1 )
+				if( select( socket_fd + 1, &read_fd_set, NULL, NULL, &timeout ) == -1 )
 				{
 					fprintf( stderr, "select() failed\n" );
 					break;
@@ -117,7 +118,7 @@ int main( int argc, char** argv )
 					}
 					if( read_bytes < 0 )
 					{
-						fprintf( stderr, "Cannot read from socket" );
+						fprintf( stderr, "Cannot read from socket\n" );
 						break;
 					}
 					printf( "Message from the server: %s\n", buffer );

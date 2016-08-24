@@ -226,3 +226,18 @@ inline alarm_t* read( std::istream& stream )
 	else
 		return nullptr;
 }
+
+inline void load_alarms( alarms_t& alarms, const char* filename )
+{
+	std::ifstream in( filename );
+	for(;;)
+	{
+		alarm_t* alarm = read( in );
+		if( alarm != nullptr )
+		{
+			alarms.push_back( alarm_ptr( alarm ) );
+		}
+		else
+			break;
+	}
+}
