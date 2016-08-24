@@ -63,10 +63,7 @@ int main( int argc, char** argv )
 
 	std::cout << "SHEDULE:" << std::endl;
 	for( auto i: shedule )
-	{
 		std::cout << utime_t( i.first ) << ": " << ( *i.second ) << std::endl;
-	}
-
 
 	int port               = atoi( argv[ 1 ] );
 	int reconnect_interval = atoi( argv[ 2 ] );
@@ -180,9 +177,7 @@ int main( int argc, char** argv )
 								printf( "Client idenified: \"%s\"\n", id );
 								auto client = clients.find( i );
 								if( client != clients.end() )
-								{
 									client->second.id = id;
-								}
 								write( i, buffer, strlen( buffer ) );
 							}
 							else if( strncmp( buffer, "HEARTBEAT\n", 10 ) == 0 )
@@ -215,8 +210,6 @@ int main( int argc, char** argv )
 			{
 				client_info_t& client = i.second;
 				
-//				if( client.fd == -1 )
-//					continue;
 				if( client.id.empty() ) // client not identified
 					continue;
 				auto alarms = signaled.find( client.id );
@@ -244,9 +237,7 @@ int main( int argc, char** argv )
 				}
 			}
 			for( auto i: clients_del_queue )
-			{
 				clients.erase( i );
-			}
 		}
 		
 		for( i = 0; i < FD_SETSIZE; ++i )
